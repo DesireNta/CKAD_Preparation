@@ -1,0 +1,94 @@
+* Kubernetes Architecture 
+
+Nodes aka Minions 
+
+A node is a machine, virtual or phyisic 
+A cluster is a set of nodes grouped together. 
+
+A cluset has a master node that mananges other nodes, it is called the master while other are workers
+
+Kubernets componentes => when u install k8s, u actualy install the folwing components 
+
+  - API server
+  - Scheduler
+  - Controller 
+  - Container runtime  
+  - kubelet 
+  _ etcd 
+
+API Server acts as the k8s front end; each command will hit directly the api server. 
+etcd is a ditributed reliable key-value store used buy K8s to store all the information 
+Scheduler is responsible for distributing loads across all the nodes 
+Controller are the brain of the k8s
+Container runtime is the underling software that is used to run container, it can be Docker, rkt or cri-o
+Kubelet is an agent that runs on each node in the cluster. 
+
+The master have a kube-apiserver, that is what makes it a master 
+
+
+POD
+____
+
+A pod is the smollest object that u can create in k8s
+a pod contains generaly one application. 
+there are some use cases where we can run two applications in the same pode but they have to have the same lifetime 
+
+: To create a pod with had hoc commande 
+ => kubeclt run nginx --image <image_name>
+
+
+Creating pod using yaml: 
+
+apiVersion: v1 #this is determines the family of the object u want to create  
+Kind: Pod # defines the type of the object
+metadata:
+  name : myapp-pod 
+  labels: 
+    app: myapp
+    type : front-end
+
+spec:
+  containers : # list/array
+    - name : ndinx-container
+      image : nginx
+
+
+Once the file is created, run the commande "kubeclt craete -f <name_of_the_file>"
+
+Once the pod is created, u can run the command kubectl get pods to see ur pod running 
+You can also us the command "kubectl describe pod <pod_name>"
+
+
+
+LAB 1 about PODS : to access labs go to this link : https://uklabs.kodekloud.com/courses/labs-certified-kubernetes-application-developer 
+____
+
+1) How many pods exist on the system ? 
+ > kubeclt get po   /this will get u all the nodes deployed in defaul namespace
+2) Create a pod with the nginx image 
+ > kubectl run nginx --image nginx 
+3) how many pods are created now ? /they had added new po in the labs 
+ > kubectl get po 
+4) What is the image used to create new pods ? 
+ > kubectl describe pod <name of one of the pods>
+5) Which nodes are these pods placed on ? 
+ > kubectl get po -o wide /this lists pods and more info which contains node
+6) how many containers are part of the pod webapp ? 
+ > kubectl get po /and then check the colmon READY to see number of expected pods
+7) what images are used in the new webapp pod 
+ > kubectl describe pod webapp /go check the images in spec section 
+8) what is the state of the container agentx in the pod webapp ? 
+ > kubectl describe po webapp /check state
+9) why do you think the container agentx in pod webapp is in error ? 
+ >/A Docker image with this name doent not exist on Docker hub
+10) what does the READY column in the output of the kubectl get pods command indicates ? 
+ > Running containers in pod/Total containers expected in Pod
+11) Delete the webapp Pod 
+ > kubectl delete po webapp
+12) Create a new pod with the name redis and with the image redis123 (Use a pod-definition YAML file, and yes the image is wrong)
+ > vim redis.yaml
+ > kubectl create -f redis.yaml
+ /this will create a pod but it's STATUS will be ImangePullBackOff
+13) Now change the image on this pod to redis
+ > kubectl edit po redis
+ /this will open a the recap file in vi/vim wich have all the information about the po, once u edit the image and save, it will update the pod. note that this does not change the orginal file 
