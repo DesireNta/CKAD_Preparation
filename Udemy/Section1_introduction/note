@@ -1,0 +1,25 @@
+The Examen doesnot require the candidate to set up a envirnoment, 
+The course needs to do much pratice to feel confident as the exam is a full handson exercices, 
+  be confident with YAML 
+  be confident with Vim 
+
+Must know for CKAD exam: 
+This exam is for the application developers who need to know how to design, to build and confugure cloud native application.  
+
+  - Core concepts 
+  - Multi-Container pods
+  - Logging and monitoring 
+  - Jobs
+  - Demos 
+  - ConfigMaps, Secrets, ....
+  - Readiness and liveness probes
+  - Services
+
+During the exam, candidates have acces to the kubernets documentation 
+
+Certified Kubernetes Application Developer: https://www.cncf.io/certification/ckad/
+
+Candidate Handbook: https://www.cncf.io/certification/candidate-handbook
+
+Exam Tips: https://docs.linuxfoundation.org/tc-docs/certification/tips-cka-and-ckad
+
