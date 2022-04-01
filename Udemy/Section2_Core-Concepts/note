@@ -222,3 +222,29 @@ LAB 2 REPLICASETS to access the lab go to : https://uklabs.kodekloud.com/topic/r
  > kubectl scal -replicas=2 rs new-replica-set. 
 
 _________ END LAB 2 REPLICASETS _______________ 
+
+
+III DEPLOYMENT 
+    ----------
+The deploymetn provides us with the capability to upgrade the underlying instances seamlessly using rolling updates, undo changes and pause and resume changes required. So the deployments over wrappes the replicat set adding the possibility to controlle the updates and upgrades of the application. 
+
+To create the deployment it is exactly the same definition file as the replicat set, Only the kind changes to Deployment 
+
+LAB 3 DEPLOYMENT to access the lab go to : https://uklabs.kodekloud.com/topic/deployments-5/
+
+from 1 to 9, same questions as above
+
+10) Create a new Deployment using the deployment-definition-1.yaml (there is an issue with the file, so try to fix ti)
+ > vim deployment-definition-1.yaml 
+  /there is an error on the kind, this is case sensitive 
+  /after fixing, run 
+ > kubectl create -f deployment-definition-1.yaml 
+11) Create a new Deployment with the below attributes using your own deployment definition file with this information : 
+    Name: httpd-frontend 
+    Replicas: 3
+    image : httpd: 2.4-alpine
+  > vim  my-deploy-def-file.yaml  
+  after editing the file run command 
+  >kubectl create -f my-deploy-def-file.yaml 
+
+______ END LAB 3 DEPLOYMENT ________________ 
