@@ -26,8 +26,8 @@ Kubelet is an agent that runs on each node in the cluster.
 The master have a kube-apiserver, that is what makes it a master 
 
 
-POD
-____
+I  POD
+   ____
 
 A pod is the smollest object that u can create in k8s
 a pod contains generaly one application. 
@@ -92,3 +92,133 @@ ____
 13) Now change the image on this pod to redis
  > kubectl edit po redis
  /this will open a the recap file in vi/vim wich have all the information about the po, once u edit the image and save, it will update the pod. note that this does not change the orginal file 
+
+Note that there are 3 way to edit pod : 
+  1 by editing the the definition file when it exists
+  2 by extractind the definition file using this commande 
+    >kubectl get pod <pod name> - yaml > pod-definition.yaml
+  3 use the kubectl edit pod <pod-name> 
+
+------------  END LAB PODS --------------------
+
+
+II  KUBERNETES CONTROLLERS 
+    ___________________
+
+Controller are the brain behind kubernetes processes that monitors k8s objects and repond accordingly
+
+II.1 Replication controller
+
+what is the replication controller and why do we need it ? 
+In the first part we created bare pod that was running one application, what happens if for some reason the pod dies ? well the application will no longer be accessible for the users 
+
+The replication controller helps us run multiple instances of the application so multiple pod, but it can alse be used to run just one pod. If one pod dies, the controller will create a new to keep the desired number of the pods (application instances)
+
+Another advantage of using replication controller, is Load Balancing & Scaling 
+
+One thing to know there are two simular terms : 
+
+Replication controller   |  Replica Set 
+both have the same purpers but the are not the same 
+
+Replication controller is the older version that is being replaced by Replica Set, it is now recommend to use replica set 
+
+A replication controller definition file looks like this
+
+apiVersion : v1 
+kind : ReplicatoinController
+metadata :
+   labels: 
+     app : myapp
+     type : front-end
+spec: 
+  template : 
+    /here u put every thing need to create a pod, except the apiVersion and the kind. So u will have something like 
+    metadata:
+       name: 
+       labels: 
+    spec: 
+  replicas : 3 
+
+After the file is created run > kubectl create -f <file name>
+To see the created replication controllers created (in this case one) run 
+> kubectl get replicationcontroller
+
+a replica set definition file looks like this : 
+
+apiVersion : apps/v1 (notice the difference) 
+kind : ReplicaSet
+metadata:
+  labels: 
+spec: 
+  template : 
+    /here u put every thing need to create a pod, except the apiVersion and the kind. So u will have something like
+    metadata:
+       name:
+       labels:
+    spec:
+  replicas: number
+  selector:
+    matchLabels:
+ 
+  /this is required while creatting a ReplicaSet, this help the RS to know wich pod is under it. This means that the replicaset can controlle pods that are created out of it self. Once a pod muches the selector, it is part of the replicat set. 
+/Note that selector is available in replication controller but it is not required. 
+
+after the file is created, run > kubectl create -f <file name> 
+to seet the created replicaset run 
+> kubeclt get replicaset 
+
+Scale with replicaset : There are multiple ways to do that 
+  1 Edit the number of need replicas in the definition file, and the run this command 
+   > kubectl replace -f <file name>
+  2 run the scale command in adhoc 
+   > kubectl scale --replicas=<new number of replicas> -f <file name>
+   You can also use this command like this 
+   > kubectl scale --replicas=<new number of replicas> replicaset <replicaset name>
+   
+   However, this will not update the number of replicas in the definition file
+  3 you can also scale based on the application load but that is an advenced topic, we will see that later 
+
+
+LAB 2 REPLICASETS to access the lab go to : https://uklabs.kodekloud.com/topic/replicasets-2/
+
+1) How many Pods exists on the system ? 
+ > kubectl get po /this will show pods deployed in the default namespace 
+2) How many ReplicaSets exists on the system 
+ > kubectl get rs /this will show replicasets that are deployed in default namespace
+3) How about now (We just made a few changes)
+ > kubectl get rs 
+4) How many PODs are DESIRED in the new-replica-set ? 
+ > kubectl get rs /check the DESIRED colmun 
+5) What is the image used to create the pods in the new-replica-set ? 
+ > kubectl describe rs new-replica-set /this will display all the info about the replicaset where u can see the image
+6) How many PODs are READY in the new-replica-set ?
+ > kubectl get rs /check the READY colmun
+7) Why do you think the PODs are not ready ? 
+ / The image used does not exist on docker hub registry 
+8) Delete any one ot the 4 PODs 
+ > kubectl delete pod 
+9) How many PODs exist now ? 
+ > kubectl get po /we can see that the rs has recreated the pod 
+10) Why are there still 4 PODs, even after you deleted one ? 
+ /the ReplicaSet ensures that desired number of PODs alwas run 
+11) Create a ReplicaSet using the replicaset-definion-1.yaml (there is an issue with the file, os try to fix it)
+ > vim replicaset-definition-1.yaml 
+ /edit the apiVersion wich is incorrect 
+ > kubectl create -f replicatset-definition-1.yaml 
+12) Fix the issue in the replicaset-definition-2.yaml file and create replicaset using it 
+ > vim replicaset-definition-2.yaml 
+  /there was a miss macth between the labels 
+ > kubectl create -f replicatset-defiinition-2.yaml
+13) Delete the two newly created ReplicaSets
+ > kubectl delete rs replicaset-1
+ > kubectl delete rs replicaset-2
+14) fix the original replica set new-replica-set to use the correct busybox image 
+ > kubectl edit rs new-replica-set 
+ /and the delete all the pods to restard new ones 
+15) Scalle the ReplicaSet to 5 PODs 
+ > kubectl scale --replicas=5 rs new-replica-set 
+16) new scale the ReplicaSet down to 2 pods 
+ > kubectl scal -replicas=2 rs new-replica-set. 
+
+_________ END LAB 2 REPLICASETS _______________ 
