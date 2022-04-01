@@ -247,4 +247,23 @@ from 1 to 9, same questions as above
   after editing the file run command 
   >kubectl create -f my-deploy-def-file.yaml 
 
-______ END LAB 3 DEPLOYMENT ________________ 
+______ END LAB 3 DEPLOYMENT ________________
+
+CERTIFICATION TIP : Formatting output with kubectl 
+
+The default output format for all <kubectl> commands is human readable plain-tex format. 
+
+The -o flag allows us to outpout the details in several different formats. 
+
+> kubectl [command] [TYPE] [NAME] -o <output_format>
+Here is some of the commonly used formats: 
+
+1) -o json : Output a JSON formatted API object. 
+2) -o name : Print ony the resource name and nothing else.
+3) -o wide : Output int the plain-text format with any additional information
+4) -o yaml : Output a YAML formatted API object 
+
+ for more details, refer :  
+https://kubernetes.io/docs/reference/kubectl/overview/
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/ 
+
