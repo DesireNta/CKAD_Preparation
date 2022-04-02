@@ -267,4 +267,79 @@ Here is some of the commonly used formats:
 https://kubernetes.io/docs/reference/kubectl/overview/
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/ 
 
+IV NAMESPACES 
+  -----------
+Namespaces helps as to logical isolate kubernetes object. Each name space have rules. 
+Kubernetes creates 3 namespace automaticaly 
+  Default : This is the one used by the users directly 
+  Kube-system : This is where kubernets deploys the pods for it's own purpose, such as DNS service, proxy and 
+  Kube-public : this is where are created resources that will be available for all users 
+
+U can ofcause create ur own namespace to organise your workflow 
+Note that the objects created in the same namespace refer to each other simply by thier names. 
+
+An object created in one namespace can reach an object created in another. for that, u must append the name of the namespace to the object name 
+in full, u will have something like this : 
+<Service-name>.<namespace>.<service>.<domain>
+for example to reach the db service named db-service deployed in dev namespace you will do : 
+db-service.dev.svc.cluster.local
+
+To use command in a given namespace, add the --namespace=<namespace name> to kubectl commands. 
+for example to list the pods deployed in kube-system namespace do : 
+
+kubectl get pods --namespace=kube-system
+
+If you want to specifie in witch namespace you want to create an object in it's definition file, add
+  namespace : <namespace> in the metadata section of the object 
+
+To create your namespace you can use a definition file like this 
+ apiVersion : v1
+ kind : Namespace
+ metadata : 
+   name : <namespace_name>
+
+or simply by runnig the command 
+kubectl create namespace <namespace_name>
+
+you can define witch namespace you want to be the default by running this command 
+
+ >kubectl config set-context $(kubectl config current-context) --namespace=<new_default_namespace>
+
+to see objects created in all namespaces run 
+kubectl get <object> --all-namespace
+
+You can limit the resource usage in a namespace by creatting a resource Quota
+
+For that u can create a definition file like this : 
+
+ apiVersion : v1
+ kind : ResourceQuota 
+ metadata: 
+   name : computa-quota 
+   namespace : dev
+ spec : 
+   hard : 
+     pods : "10"
+     requests.cou "4"
+     requests.memory : 5Gi
+     limits.cpu : "10"
+     limits.memory : 10 Gi
+
+LAB 4  NAMESPACES to access the lab go to https://uklabs.kodekloud.com/topic/namespaces-3/
+      ----------
+
+1) How many Namespaces exist on the system ? 
+ > kubectl get namespaces 
+2) How many pods exist in the research namespaces ? 
+ > kubectl get po --namespace=research 
+3) Create a Pod in the finance namespace using the spec given below 
+ > kubectl run redis --image=redis --namespace=finance 
+4) which namespace has the blue pod in it ? 
+ > kubectl get po --all-namespaces /and check the NAMESPACE colmun to see where is the pod named blue
+5) What DNS name should the "Blue" application use to access the database "db-service" in its own namespace "marketing"
+ > db-service
+6) what DNS name should the "Blue" application use to access the database "db-service" in the "dev" namespace 
+ > db-service.dev.svc.cluster.local 
+_______ END LAB IV ___________
+ 
 
