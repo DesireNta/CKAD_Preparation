@@ -341,5 +341,79 @@ LAB 4  NAMESPACES to access the lab go to https://uklabs.kodekloud.com/topic/nam
 6) what DNS name should the "Blue" application use to access the database "db-service" in the "dev" namespace 
  > db-service.dev.svc.cluster.local 
 _______ END LAB IV ___________
+
+
+V CERTIFICATION TIP : IMPERATIVE COMMANDSS
+-------------------------------------------
+
+While you would be wroking mostly the declarative way using definitions files, imperative  commands can help in getting on time tasks done quickly, as well as generate a definition template easily. This would help save considerable amount of time during your exams.
+
+Before we begin, familiarize with the two options that can come in handy while working with the below commands:
+
+> --dry-run : By default as soon as the command is run, the resource will be created. If you simply want to test your command, u can use --dry-run:client option. This will not create the resource, instead , tell u whether the resource can be created and if you command is right. 
+
+> -o yaml: This will output the resource definition in YAML format on screen. 
+
+Use the above two in combination to generate a resource definition file quickly, that you can then modify and create resources as required, instead of creating the files from scratch.
+
+Exemple : 
+
+
+> kubectl run nginx --image=nginx /this will create an nginx Pod
+> kubectl run nginx --image=nginx --dry-run=client -o yaml /this will generate a Pod manifest YAML file (-o yaml). Don't create it (--dry-run)
+
+> kubectl create deployment --image=nginx nginx /this will create a Deployment 
+> kubectl create deployment --image=nginx nginx --dry-run=client -o yaml /this will generate a Deployment definition file. 
+
+> kubectl create deployment --image=nginx nginx --replicas=4 /generate deployment with 4 replicas
  
+Another way to do this is to save the YAML definition to a file and modify
+
+kubectl create deployment nginx --image=nginx--dry-run=client -o yaml > nginx-deployment.yaml
+
+You can then update the YAML file with the replicas or any other field before creating the deployment.
+
+Service : 
+
+Create a Service named redis-service of type ClusterIP to expose redis on port 6379
+> kubectl expose pod redis --port=6379 --name redis-service --dry-run=client -o yaml /This will automatcically use the pod's labels as selectors)
+or 
+> kubectl create service clusterip redis --tcp6379:6379 --dry-run=client -o yaml 
+/this will NOT use the pods labels a selectors, instead il will assume selectors as <app=redis>. You can not pass int selectors as an option. So it does not work very well if your pod has a different label set. So generate the file and modify the selectors before creating the service.
+
+Create a Service named nginx of type NodePort to expose pod nginx's port 80 on port 30080 on the nodes: 
+> kubectl expose pod nginx --port=80 --name nginx-service --type=NodePort --dry-run=client -o yaml
+/this will automatically use the pod's lables as selelctors, but u can not specify the node port. You have to generate a definition file and then add the onte port in manually before cretaeing the service with the pod. 
+or 
+> kubectl create service nodeport  nginx --tcp=80:80 --node-port=30080 --dry-run=client -o yaml
+/this will not usee the pods labels as selectors
+
+Both the above commands have their own challenges. While one of it cannot accept a selector the other cannot accept a node port. I would recommend going with the `kubectl expose` command. If you need to specify a node port, generate a definition file using the same command and manually input the nodeport before creating the service.
+
+to sum up : 
+kubectl expose /this will use automatically the pod's labels as selectors. but you can not specifly the node port 
+kubectl create service /this will use just app=<name>, you can not pass in selectors as an option. but you can specifly the node port
+
+LAB V IMPERATIVE COMMANDS to acces the lab go to : https://uklabs.kodekloud.com/topic/imperative-commands/
+    --------------------- 
+
+1) Deploy a pod named nginx-pod using the nginx:alpine image (use imperative commands only)
+ > kubectl run nginx-pod --image=nginx:alpine
+2) Deploy a redis pod using the redis:alpine image with the labels set to tier=db
+ > kubectl run redis --image=redis:alpine --labels=tier=db
+3) Create a service redis-service to expose the redis application within the cluster on port 6379 (use imperative commands)
+ > kubectl expose pod redis --port=6379 --name=redis-service
+4) Create a deployment named webapp using the kodekloud/webapp-color with 3 replicas. (use imperative commands)
+ > kubectl create deployment webapp --image=kodekloud/webapp-color --replicas=3
+5) Create a new pod called custom-nginx using the nginx image and expose it on container port 8080
+ > kubectl run custom-nginx --image=nginx --port=8080
+ *** (j'avais pas bien compris la question, ici pas besoin de service)
+6) create a new namespace called dev-ns
+ > kubectl create namespace dev-ns
+7) Create a new deployment called redis-deploy in the dev-ns namespace with the redis image. it should have 2 replicas
+ > kubectl create deployment redis-deploy --image=redis --namespace=dev-ns --replicas=2
+8) create a pod called httpd using the image httpd:alpine in the default namespace. Next, create a service of type ClusterIP by the same name httpd. the target port for the srvice should be 80. (try to do this with as few steps as possible) 
+ > kubectl run httpd --image=httpd:alpine
+ > kubectl expose pod httpd --port=80 --name httpd --type=ClusterIP
+______EN LAB V _______________________________
 
