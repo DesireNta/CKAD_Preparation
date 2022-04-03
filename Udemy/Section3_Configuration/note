@@ -1,0 +1,160 @@
+I COMMANDS IN DOCKER 
+  -----------------
+note that this is note a required section in the exam, but it is important to know as it is a topic that is usually overlooked. 
+
+Refresh the memory about commands in docker : 
+let say u want to run a docker container from ubuntu image, the command will be. 
+> docker run ubuntu /this will run a docker container and exits immediately.
+So why is that ? 
+Containers are not designed to run a OS like vms. Containers run on process and exist once it is completed.
+So who do u define wich process that will run in the container ? 
+When u check a docker file, you will see a instruction
+ CMD ["command"] /this define the programm that will run when the container is started 
+In our ubuntu cas, the default command is "bash" wich will be waitting for a terminal. since docker does not attach any by default, the container exits. 
+
+To overwrite the default command, you can simply the new process to run to the command like this: 
+> Docker run ubuntu sleep 5 /this will run the container and waits for 5 seconds. 
+You can make that behevor permment by change the docker file, the default command. 
+  CMD command param1
+  or 
+  CMD ["command","param1"]
+exemple : 
+ we change change the docker file for ubuntu like this : 
+  CMD ["sleep","5"]
+So this will always sleep for 5 seconds. 
+
+But what if we wanted the user to be able to set the sleeping time ? something like this ? >docker run ubuntu-sleeper 10 
+Well, we will use the instruction ENTRYPOINT ["command"]
+
+The ENTRYPOINT instruction is like CMD instruction as u can specifie the programme that will run by default, but with ENTRYPOINT command, what ever u add to docker run command will be append to the default command. Wich is not the case for the CMD instruction 
+
+so note that if u use 
+ CMD the whole command given will be replaced by what u add to the command line
+with 
+ ENTRYPOINT what u add to the command line will be appended 
+        8080/TCP   
+
+II COMMANDS & ARGUMENTS IN K8s
+   --------------------------
+ Let's say we want to create a pod from the ubuntu-sleeper image that we created above: 
+
+apiVersion : v1
+kind : Pod 
+metadata: 
+  name : ubuntu-slepper
+  labels: 
+    app : sleeper 
+spec : 
+  containers : 
+    - name : ubuntu-sleeper
+      image : ubuntu-sleeper 
+This will create a pod that will live for 5 second (the default value) and the dies. 
+So how do u specifie a custom time to sleep ? 
+for that u add args : ["custom_time"] in the pod's spec 
+apiVersion : v1
+kind : Pod
+metadata:
+  name : ubuntu-slepper
+  labels:
+    app : sleeper
+spec :
+  containers :
+    - name : ubuntu-sleeper
+      image : ubuntu-sleeper
+      args : ["10"]
+
+So what if you want to overwrite the default command ? the one given in docker file as ENTRYPOINT ? 
+for that u add command : ["new command"] in the pod's spec 
+apiVersion : v1
+kind : Pod
+metadata:
+  name : ubuntu-slepper
+  labels:
+    app : sleeper
+spec :
+  containers :
+    - name : ubuntu-sleeper
+      image : ubuntu-sleeper
+      command : ["sleep2.O"]
+      args : ["10"]
+so we have : 
+
+    in docker file        vs      in definition file 
+
+ENTRYPOINT          =========>   command 
+CMD                 =========>   args 
+
+III A quick note on editing PODs and Deployments
+    -------------------------------------------
+
+you CANNOT edit specifications of an existing POD other than the below.
+
+spec.containers[*].image
+
+spec.initContainers[*].image
+
+spec.activeDeadlineSeconds
+
+spec.tolerations
+
+For example you cannot edit the environment variables, service accounts, resource limits (all of which we will discuss later) of a running pod. But if you really want to, you have 2 options:
+
+1. Run the kubectl edit pod <pod name> command.  This will open the pod specification in an editor (vi editor). Then edit the required properties. When you try to save it, you will be denied. This is because you are attempting to edit a field on the pod that is not editable. A copy of the file with your changes is saved in a temporary location.
+
+You can then delete the existing pod by running the command:
+> kubectl delete pod webapp
+Then create a new pod with your changes using the temporary file
+> kubectl create -f /tmp/kubectl-edit-ccvrq.yaml
+
+2. The second option is to extract the pod definition in YAML format to a file using the command
+ > kubectl get pod webapp -o yaml > my-new-pod.yaml
+Then make the changes to the exported file using an editor (vi editor). Save the changes
+ > vi my-new-pod.yaml
+Then delete the existing pod
+ > kubectl delete pod webapp
+Then create a new pod with the edited file
+ > kubectl create -f my-new-pod.yaml
+
+Edit Deployments
+With Deployments you can easily edit any field/property of the POD template. Since the pod template is a child of the deployment specification,  with every change the deployment will automatically delete and create a new pod with the new changes. So if you are asked to edit a property of a POD part of a deployment you may do that simply by running the command
+ > kubectl edit deployment my-deployment
+
+LAB I COMMANDS AND ARGUMENTS  to access the the lab go to https://uklabs.kodekloud.com/topic/commands-and-arguments/
+
+1) How many PODS exist on the system  ? 
+ > kubectl get po /there is one pod named ubunutu-sleeper 
+2) What is the command used to run the pod ubuntu-sleeper ?
+ > kubectl describe po ubuntu-sleeper or kubectl edit po ubuntu-sleeper 
+  /and check the command used 
+3) Create a pod with the ubuntu image to run a container to sleep for 5000 seconds. Modify the file ubuntu-sleeper-2.yaml 
+ > vim ubuntu-sleeper-2.yaml 
+ /edit the file to add command and args
+ > kubectl create -f ubuntu-sleeper-2.yaml 
+4) Create a pod using the file mamed ubuntu-sleeper-3.yaml.  there is something wrong with it. Try to fix it. 
+ > vim ubuntu-sleeper-3.yaml 
+  correct the error 
+ > kubectl create -f ubuntu-sleeper-3.yaml 
+5) Update pod ubuntu-sleeper-3 to sleep for 2000 seconds 
+ > kubectl edit po ubuntu-sleeper-3 
+  /this will create a temporaly file like this /tmp/kubectl-edit-584963160.yaml,  
+ > kubectl delete po ubuntu-sleeper-3
+  /remember, u can note update the command and args fields in a pod, u have to kill it and recreate it
+ > kubectl create -f /tmp/kubectl-edit-584963160.yaml
+6) inspect the file Dockerfile given in this dir, what command is run at container startup ? 
+  > vim Dockerfile / and check for  what is given as CMD or ENTRYPOINT 
+  in our case, it is : python app.py
+7) inspect the file Dockerfile2, what command is run at container startup ? 
+  > vim Dockerfile2 /and check the default command 
+  in this case, the command is : 
+  python app.py --color red 
+
+8) inspect the two files under the dir webapp-color-2. what command is run at container startup ? 
+ > vim Dockerfile2 /and check 
+ in this case, it is : python app.py --color pink
+
+9)Create a pod with the given specifications. By default it displays a blue background. Set the given command line arguments to change it to green
+  > vim default-blue-args-green.yaml 
+  > kubectl create -f !$
+
+_______END LAB I ______________________
+ 
