@@ -157,4 +157,94 @@ LAB I COMMANDS AND ARGUMENTS  to access the the lab go to https://uklabs.kodeklo
   > kubectl create -f !$
 
 _______END LAB I ______________________
- 
+
+III 1  ENVIRONMENT VARIABLES 
+    ---------------------
+
+You can set environmenet variable in a pod by spécifiying the env in the spec section like this : 
+
+apiVersion : v1
+kind : Pod
+metadata : 
+   name : mypod
+   labels : 
+     tier : web
+spec : 
+  containers : 
+    - name : container_name 
+      imange : imange 
+      ports : 
+        - containerPort : 9999
+      env : 
+        - name : 
+          value : 
+note that env is an array, so each element starts with a - 
+There multiple ways of setting env value ; 
+1 env : 
+    - name : APP_COLOR 
+      value : pink 
+  /plain key value 
+
+2 env : 
+    - name : APP_COLOR 
+      valueFrom : 
+         configMapKeyRef : 
+  /From configMaps 
+
+3 env : 
+    - name : APP_COLOR 
+      valueFrom : 
+        SecretKeyRef : 
+ /Secrets 
+
+4 envFrom : 
+   - configMapRef : 
+         name : 
+
+
+III  2 CONFIGMAPS 
+     ------------
+
+ConfigMaps are used to pass configuration data in the form of key value pairs in Kubernetes. 
+When a Pod is created, injects the config map into the pod, so the key-value parents are availble as enviroment variables for the application hosted inside the container in the pod. 
+
+As other obejects in k8s, a configMap can be created using imperative command or the declarative way, 
+imperative : kubectl create configmap <config_name> --from-literal=<key>=<value>
+         or  kubectl create configmap <config_name> --from-file=<path-to-file>
+
+Declarative way using a definition file : 
+apiVersion : v1
+kind : configMap
+metadata : 
+  name : config_name 
+data : 
+   key : value
+   key1 : value2
+   key3 : value3 
+   ...
+
+LAB 2 : CONFIGMAPS to access the lab go to https://uklabs.kodekloud.com/topic/configmaps-2/
+
+1) How many PODs exist on the system in the current(default) namespace ?
+ > kubectl get po /there is on pod named webapp-color 
+2) What is the environment variable name set on the container in the pod?
+ > kubectl describe po webapp-color /check the spec 
+3) What is the value set on the environment variable APP_COLOR on the container in the pod? 
+ > kubectl describe po webapp-color /check the spec
+4) Update the environment variable on the POD to display a green background Note: Delete and recreate the POD. Only make the necessary changes. Do not modify the name of the Pod
+ > kubectl edit pod webapp-color /and edit the value of the env, this will generate an error and a tmp file 
+  /delete the pod and recreate the pod using the tmp file 
+5) How many ConfigMaps exists in the default namespace ? 
+ > kubectl get configMaps  / there are two configMaps, one of them is named db-config
+6) Identify the database host from the config map db-config 
+ > kubectl describe configMap db-config 
+7) Create a new ConfigMap for the webapp-color POD. Use the spec given below.
+      ConfigName Name: webapp-config-map
+      Data: APP_COLOR=darkblue
+ > kubectl create configmap webapp-config-map --from-literal=APP_COLOR=darkblue
+8) Update the environment variable on the POD to use the newly created ConfigMap
+   Note: Delete and recreate the POD. Only make the necessary changes. Do not modify the name of the Pod
+ > kubectl edit pod webapp-color /and edit the value of the env, this will generate an error and a tmp file
+  /delete the pod and recreate the pod using the tmp file
+
+_____ END LAB 2 ________________
