@@ -248,3 +248,37 @@ LAB 2 : CONFIGMAPS to access the lab go to https://uklabs.kodekloud.com/topic/co
   /delete the pod and recreate the pod using the tmp file
 
 _____ END LAB 2 ________________
+
+
+IV  SECRETS 
+    --------
+Secrets are used to store sensitve information like passwords or keys. there are similar to configMaps except that they are stored in a encoded or hashed format. As with configmaps, there are two steps involed in working with secrets : 
+First, create the secret second, injecte it into pod. 
+There are two way to create a secrete; imperative way without using a secret definition file and declarative way by using a secret definition file. 
+
+impérative way :  /this way, u can directly specify the key value pairs in the command line itselft. 
+ > kubectl crate secret generic <secret_name> --from-literal=<key>=<value>
+declarative : 
+
+apiVersion : v1
+kind : Secret
+metadata : 
+  name : <name_of_the_secret>
+data : 
+  key1 : value1
+  key2 : value2
+  key3 : value3
+
+However, we seen that secrets are used to store sensitve date and are stored in an encoded format. So value1, value2, value3 ...
+must be encoded. But how do u convert the data from plain text to an encoded format ? 
+on a linux host, run the command : 
+ > echo -n 'value(i)' | base64
+to decode, u can use the same command but add --decode after
+ > echo -n 'dmFsdWUoaSk=' | base64 --decode 
+
+to use secret in the pod, u put it in the definition file. In the spec section add; 
+
+envFrom : 
+   - secretRef : 
+         name : <secret_name>
+
