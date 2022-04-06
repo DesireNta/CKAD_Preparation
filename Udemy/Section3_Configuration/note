@@ -306,3 +306,28 @@ ____ LAB 3 SECRETS to access the lab go to : https://uklabs.kodekloud.com/topic/
            name : db-secret
 
 ______END LAB 3___________
+
+
+V SECURITY 
+  --------
+
+V.1 Security in Docker 
+  --------------------
+Let us start with a host with Docker installed on it. the host have it's own processes. Let now run an ubuntu container that runs a process that sleeps for an hour. Remember, container are not completely isolated from thier hosts, they share the same kernel. 
+So containers are isoleted using Namespaces in Linux. When a container is run, it can only see processes in it's own namespace. However, the process of the container are visible in the host but, ofcause, with a different process IDs. That is about processes. 
+
+Let's see about users. 
+The host has a set of Users, a root user as well as number of non-root users. By Default, Docker runs processes within containers as the root user. But u can change that default behavours and set a user u want by specifying the user id. In docker u can use this command : 
+> docker run --user=1000 ubuntu sleep 3600
+You can also do that in the Dockerfile using the USER instrucation > docker run --user=1000 ubuntu sleep 3600 
+
+One question : if u run a container with a root user, is it the same root user in the container as the host ? wich will make the root user in the container to do anything on the host system ? 
+> Well, Docker implements a set of security features that limits the abilities of the root user within a container. so the do not have quite same capabilities. By default, some capabilities are not given to the root user in the container. However, u can add some capabilities by add the --cap-add <capability> in the docker run command: 
+> docker run --cap-add MAC_ADMIN ubuntu. 
+ /you can also drop some capabilities by using --cap-drop flag
+ /you can also give all the capabilities to the user by adding the flag --privileged. 
+
+you can check all capabilities avaible in linux system at this link : /usr/include/linux/capability.h  
+
+
+
