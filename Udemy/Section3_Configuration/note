@@ -330,4 +330,48 @@ One question : if u run a container with a root user, is it the same root user i
 you can check all capabilities avaible in linux system at this link : /usr/include/linux/capability.h  
 
 
+V.2 Security context in kubernetes 
+    ------------------------------
+The security managment we just saw in docker containers are applicable in kubernetes' pods. In Pods, you may choose to configure the security settings at a container level or at pod level. If you configure it at a pod level, the settings will carry over to all the containers within the pod. It you configure it at both the pod and the container, the settings on the container will override the settings on the pod level. 
+Let's see the pod's definition file with security context defined : 
+ apiVersion : v1 
+ kind : Pod 
+ metadata : 
+   name : webapp 
+ spec : 
+   securityContext :  /Here we define a security context at the pod level
+       runAsUser : 1000
+   containers : 
+      - name : ubuntu 
+        image : ubuntu 
+        command : ["sleep","3600"]
+        securityContext : 
+           runAsUser : 1010
+           capabilities : 
+              add : ["MAC_ADMIN"]
 
+To specify the security context at the container level, you can move the whole definition at the container level.
+NOTE : Capabilities are only supported at the containter level and not at the pod level.  
+
+LAB 4 SECURITY CONTEXTS to access the lab go to https://uklabs.kodekloud.com/topic/security-contexts-3/
+
+1) What is the user used to execute the sleep process with the ubuntu-sleeper pod ? 
+ > kubectl describe po ubuntu-sleeper /no user specified, so it will be the default user (root)
+2) Edit the pod ubuntu-sleeper to run the sleep process with user ID 1010. 
+ > kubectl edit po ubuntu-sleeper 
+   edit the security context, delete the pod and recreate it with the tmp file 
+3) A Pod definition file named multi-pod.yaml is given. With what user are the processes in the web container started?
+   The pod is created with multiple containers and security contexts defined at the Pod and Container level.
+ > vim multi-pod.yaml /inspect the file to find out the user. 
+4) With what user are the processes in the sidecar container started?
+   The pod is created with multiple containers and security contexts defined at the Pod and Container level.
+  /inspect the same file as before to see the user under the container sidecar, if none is specified check the pod level 
+ 
+5) Update pod ubuntu-sleeper to run as Root user and with the SYS_TIME capability
+  > kubectl edit po ubuntu-slpeer 
+  /add the capabities section at the container level 
+
+6) now update the pod to also make use of the NET_ADMIN capability. 
+ > edit the same file and add NET_ADMIN in the table 
+
+_______END LAB 4_____________
