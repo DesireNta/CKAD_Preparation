@@ -375,3 +375,46 @@ LAB 4 SECURITY CONTEXTS to access the lab go to https://uklabs.kodekloud.com/top
  > edit the same file and add NET_ADMIN in the table 
 
 _______END LAB 4_____________
+
+
+
+VI SERVICE ACCOUNTS 
+   ----------------
+
+The concept of service accounts is linked to other security related concepts in k8s. 
+There are two types of kubernetes accounts in k8s, 
+
+           User account                    vs                 Service account 
+
+  these are used by humans                            thes are used by machines 
+  they can be admin's                                 For the applications to use K8s, they have to have an account to make call to 
+  or Developper                                       the apiServer. 
+
+You can create a service account in imperative way by running this command : 
+> kubectl create serviceaccount <name_of_the_service_account>
+When a service account is created, it also create a token wich will be used with the application to authenticate when calling the apiserver. Note that this token is stored as a secret. 
+note that if the thierd part application is used in the same cluster, the service account can be mounted as a volume, so that there will be no need of manuel configuration. 
+When u create a k8s cluster, there is a default service account created it named default. note that each namespace has it's own default service account. This default service account is the one used by the pods by default. 
+
+When creatting a pod, u can choose to use a another service account than the default one by adding the following in the spec 
+serviceAccountName : <service_account_name>
+
+___ LAB 5 SERVICE ACCOUNT to access the lab, go to https://uklabs.kodekloud.com/topic/service-account-2/
+
+1) How many Service Accounts exist in the default namespace ? 
+ > kubectl get serviceAccount
+2) What is the secret token used by the default service account ?
+ > kubectl describe serviceAccount default 
+  /check the Mountable secrets 
+3) We just deployed the Dashboard application. Inspect the deployment. What is the image used by the deployment? 
+ > kubeclt get deploy  /the created deploy is named web-dashboard 
+ > kubectl describe deploy web-dashboard 
+4) insect the Dashboard Application Pod and identify the Service account mounted on it 
+ > kubectl describe po <pod_name>
+5) At what location is the ServiceAccount credentials available within the pod? 
+ > kubectl describe po <pod_name>  
+6) The application needs a ServiceAccount with the Right permissions to be created to authenticate to Kubernetes. The 'default' ServiceAccount has limited access. Create a new ServiceAccount named 'dashboard-sa'.
+ > kubectl create serviceAccount dashboard-sai
+7) Update the deployment to use the newly created ServiceAccount
+   Edit the deployment to change ServiceAccount from 'default' to 'dashboard-sa'
+__________END LAB 5_______________
