@@ -535,4 +535,66 @@ LAB 7 TAINTS AND TOLERATION To access the lab go to : https://uklabs.kodekloud.c
 
 ------- END LAB 7 ____________________
 
+IX NODE SELETORS && NODE AFFINITY 
+   ------------------------------
 
+Imagine we have a 3 node cluster of wich two are small nodes with low hardware resources and on of them is large with high resources.And we have different kinds of workloads. You would like to dedicate that data processing workloads that require more resources to the larger node. For that, u can configure the node to run on a partical node.
+there are two ways to do so : 
+
+  1 Node selectors : 
+This is simple and easy way. 
+Under the spec section add
+  nodeSelector : 
+     size : Large /this must be a label on the node Large. 
+     /to label a node, run this command ! 
+     > kubectl label nodes <node-name> <label-key>=<label-value>
+ exemple : kubectl label nodes node-1 size=Large
+
+however, this way have limitations, for exemple, you can not define more than one label for exemple Large or medium.
+
+   2 Node affinity : 
+The purpose of node affinity feature is to ensure that pods are hosted on particular nodes. 
+This way provides more advanced capabilities to limit pod placement on specific nodes but with more complexity. 
+for this, specifie the node affinity in the spec section under containters 
+
+affinity : 
+  nodeAffinity : 
+    requiredDuringSchedulingIgnoredDuringExecution : /affinity type  
+      nodeSelectorTerms : 
+      - matchExpressions : 
+          - key : size
+            operator : In 
+              values : 
+                 - Large 
+
+there are 3 affinity types : 
+requiredDuringSchedulingIgnoredDuringExecution
+preferredDuringSchedulingIgnoredDuringExecution
+requiredDuringSchedulingRequiredDuringExecution
+
+_______ LAB 8 node affinity to access the lab go to : https://uklabs.kodekloud.com/topic/node-affinity-3/ _____
+
+1) How many Labels exist on node node01 ?
+  > kubectl get nodes node01 --show-labels 
+2) Apply a label color=blue to node node01 
+  > kubectl label node node01 color=blue 
+3) Create a new deployment named blue with the nginx image and 3 replicas
+  > kubectl create deploy blue --image=nginx --replicas=3
+  > or kubectl create -f deployment.yaml
+4) Set Node Affinity to the deployment to place the pods on node01 only
+  > kubectl edit deploy /add the affinity in the definition  
+
+_______ END LAB 8 ___________ 
+
+Certification Tips - Student Tips 
+---------------------------------
+
+Make sure you check out these tips and tricks from other students who have cleared the exam:
+
+https://www.linkedin.com/pulse/my-ckad-exam-experience-atharva-chauthaiwale/
+
+https://medium.com/@harioverhere/ckad-certified-kubernetes-application-developer-my-journey-3afb0901014
+
+https://github.com/lucassha/CKAD-resources
+
+ __________ END SECTION 3 __________                       
