@@ -497,3 +497,42 @@ _____ END LAB 6 _______________
 VIII TAINTS AND TOLERATIONS 
      ______________________
 
+Taints and tolerations have nothing to do with security or intrusion on a cluster. taints and tolerations are used to set restrictions on what pods can be schedulled on a node. Know that taints are set on nodes and tolerations are set on pods. 
+
+To taint a node u can use this command. 
+> kubectl taint nodes node-name key=value:taint-effect
+there are 3 taint effects : 
+ NoSchedule / The pods with out toleration to the taint will not be scheduled on the node. 
+ PreferNoSchedule / The sheduler will try to avoid placing pods without taint toleration but it not guaranteed. 
+ NoExecute / New pods will not be scheduled on the node and existing pod will be evicted to be deployed away if they not tolerate the taint.
+
+tolerations are defined in the pod definition file under the spec section : 
+
+   tolerations : 
+    - key : "key"
+      operator : ""
+      value : "value"
+      effect : "taint-effect"
+
+LAB 7 TAINTS AND TOLERATION To access the lab go to : https://uklabs.kodekloud.com/topic/taints-and-tolerations-3/
+
+1) How many nodes exist on the system including the controlplane node?
+  > kubectl get no 
+2) Do any taints exist on node01 node ? 
+  > kubectl describe no node01 | grep Taint
+3) Create a taint on node01 with key of spray, value of mortein and effect of NoSchedule 
+  > kubectl taint node node01 spray=mortein:NoSchedule
+4) Create a new pod with the nginx image and pod name as mosquito.
+  > kubectl run mosquito --image=nginx 
+5) What is the state of the POD? 
+   /Pending becouse the pod has no toleration and all the nodes are tainted 
+6) Create another pod named bee with the nginx image, which has a toleration set to the taint mortein. 
+   > kubectl create -f toleration_bee_pod.yaml 
+7) Do you see any taints on controlplane node? 
+   > kubectl describe no controlplane | grep Taints
+8) Remove the taint on controlplane, which currently has the taint effect of NoSchedule. 
+   > kubectl taint node controlplane node-role.kubernetes.io/master:NoSchedule-
+
+------- END LAB 7 ____________________
+
+
