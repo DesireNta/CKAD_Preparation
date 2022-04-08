@@ -418,3 +418,82 @@ ___ LAB 5 SERVICE ACCOUNT to access the lab, go to https://uklabs.kodekloud.com/
 7) Update the deployment to use the newly created ServiceAccount
    Edit the deployment to change ServiceAccount from 'default' to 'dashboard-sa'
 __________END LAB 5_______________
+
+
+VII RESOURCE REQUIREMENTS
+    ---------------------
+
+Let's say we a have three node in the cluster, each has cpu, Ram and disc resources available. 
+When ever a pod is deployed on the node will consume a bit of that resources. It is the job of the scheduller to place Pod's across the node. If there is no enough resource in all the nodes, the pod will go pending state. 
+
+By default, container in a pod requires 0.5 CPU, 256Mi of memory. but if u know that your pod may need more resources u can specifie that in the definition file in the spec section under the containers object. 
+ apiVersion : v1
+ king : Pod 
+ metadata : 
+   name : my_pod 
+ spec : 
+   containers : 
+    - name : my_pod
+      image : apache 
+      ports : 
+        - containerPort : 8080 
+      resources : 
+        requests : 
+          memory : "1Gi"
+          cpu : 1
+Know that a pod in a node can use all the resources available by default. u can set a limit so that the pod do not suffocate the native processors on the node. u just add limits in the definition file.
+
+      resources :
+        requests :
+          memory : "1Gi"
+          cpu : 1
+
+In the previous lecture, I said - "When a pod is created the containers are assigned a default CPU request of .5 and memory of 256Mi". For the POD to pick up those defaults you must have first set those as default values for request and limit by creating a LimitRange in that namespace.
+
+for the memory : https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: mem-limit-range
+spec:
+  limits:
+  - default:
+      memory: 512Mi
+    defaultRequest:
+      memory: 256Mi
+    type: Container
+ 
+for the cpu : https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-limit-range
+spec:
+  limits:
+  - default:
+      cpu: 1
+    defaultRequest:
+      cpu: 0.5
+    type: Container
+
+for more information about resource limits : https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource
+
+___ LAB 6 to access the lab go to : https://uklabs.kodekloud.com/topic/resource-limits-2/
+
+1) A pod called rabbit is deployed. Identify the CPU requirements set on the Pod
+ > kubectl describe po rabbit 
+2) Delete the rabbit Pod 
+ > kubectl delete po rabbit 
+3) Another pod called elephant has been deployed in the default namespace. It fails to get to a running state. Inspect this pod and identify the Reason why it is not running. 
+ > kubectl describe po elephant 
+4) The status OOMKilled indicates that it is failing because the pod ran out of memory. Identify the memory limit set on the POD.
+ /same command 
+5) The elephant pod runs a process that consume 15Mi of memory. Increase the limit of the elephant pod to 20Mi.
+ > kubectl edit po elephant 
+
+_____ END LAB 6 _______________
+
+
+VIII TAINTS AND TOLERATIONS 
+     ______________________
+
