@@ -35,4 +35,4 @@ LAB 1 MULTI-CONTAINER PODS to access the lab go to : https://uklabs.kodekloud.co
  
  > kubectl edit po app -n elastic-stack /and add a new container in the section
 
-_______________ END LAB 1______________  
+_______________ END LAB 1_____________  
