@@ -1,0 +1,38 @@
+I Multi-Container Pods 
+-----------------------
+
+There are different patterns of multi-container pods int kubernetes such as 
+ - Ambassador
+ - Adapter 
+ - Sidecar
+
+The idea of decoupling a large monolithic application into subcomponents know as µServices enables to develop an deploy a set of independent small and reusable code. This architecture can then help us scale up /down and modifie services easly. 
+However at times you may need two services to work together such as a web server and a logging service. you need them to work paired.That when u can use the multi-container pod, so the two application will have the same life span (created together and destroyed together). They share the same network space which means they can refer to each other as local host. 
+to create a multi-container pod, u just add a new container in the spec definition as containers is an array that can accept multiple values. 
+
+LAB 1 MULTI-CONTAINER PODS to access the lab go to : https://uklabs.kodekloud.com/topic/multi-container-pods-3/ 
+
+1) Identify the number of containers created in the red pod 
+ > kubectl get po red 
+2) Identify the name of the containers running in the blue pod
+ > kubectl edit po blue /then check the names 
+3) Create a multi-container pod with 2 containers.Use the spec given below.If the pod goes into the crashloopbackoff then add sleep 1000 in the lemon container.
+   - Name : yellow 
+   - Container 1 name : lemon
+   - Container 1 image : busbox
+   - Container 2 name : gold
+   - Container 2 Image : redis 
+ > kubectl create -f yellow.yaml 
+
+4) Inspect the app pod and identify the number of containers in it. 
+ > kubeclt get po app -n elastic-stack
+5) Edit the pod to add a sidecar container to send logs to Elastic Search. Mount the log volume to the sidecar container. Only add a new container. Do not modify anything else. Use the spec provided below
+   - Name : app
+   - container name : sidecar
+   - container image : kodekloud/filebeat-configured
+   - volume Mout : log-volume
+   - Mount Path : /var/log/event-simulator/
+ 
+ > kubectl edit po app -n elastic-stack /and add a new container in the section
+
+_______________ END LAB 1______________  
