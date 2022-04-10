@@ -90,3 +90,36 @@ LAB 2 , Container logging , to access the lab go to : https://uklabs.kodekloud.c
  > kubectl logs webapp-2 simple-web
 
 __________ END Lab 2 ____________
+
+III . MONITORING IN K8s
+     ------------------
+How to monitor resource consumption on k8s or more importantly what would you like to monitor. 
+We would like to know node level metrics such as the number of nodes in the cluster, how many of them are healthy as well as performance metrs such as CPU, memory network and disk utilization. 
+We would be also intersted in POD level metrics such as the number of pods and the performance metrics of each POD. 
+At the time of recording the course, kubernetes do not have a built in solution to monitor all these. however, there are some 3 party solutions such as Metric server, Prometheus, Elastic Stack, DataDog and Dynatrace.
+
+U can have one metric server on a cluster. The metrics server retrieves metrics from each of the nodes and pod, aggregates them and store them in memory. to generate te metrics for the nodes and the pods, this is done trought kubelet agent. Kubelet contains a subcomponent known as the cAdvisor or Container advisor. this componet is responsible for reatrieving performance metrics form pods and exposing them through the kubelet api. 
+To user the metric server run :
+
+if u are using minikube : > minikube addons enable metrics-server
+for other, : > git clone https://github.com/kubernetes-incubator/metrics-server 
+             deploy the file in deploy/<version>
+Once the deployment is done, run > kubeclt top node, this provides the cpu an memory consumption of each of the nodes.
+for the pods : > kubectl top pod 
+
+LAB 3 MONITORING to access the lab go to : https://uklabs.kodekloud.com/topic/monitoring-2/
+___________________________________________________________________________________________
+
+1) We have deployed a few PODs running workloads. Inspect them.
+   > kubectl get po 
+2) Let us deploy metrics-server to monitor the PODs and Nodes. Pull the git repository for the deployment files.  
+   Run: git clone https://github.com/kodekloudhub/kubernetes-metrics-server.git
+3) Deploy the metrics-server by creating all the components downloaded
+   > cd kubernetes-metrics-server && kubectl create -f .
+4) It takes a few minutes for the metrics server to start gathering data. Run the kubectl top node command and wait for a valid output.
+5) Identify the node that consumes the most CPU.
+  > kubectl top node 
+6) Identify the POD that consumes the most Memory.
+  > kubectl top pod
+
+____________ END Lab 3 _______________________
