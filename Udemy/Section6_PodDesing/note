@@ -1,0 +1,102 @@
+I LABELS, SELECTORS and ANNOTAITONS 
+  ---------------------------------
+
+I.1 Labels and selectors : 
+These are the standard methode to group things together, so that we can be able to filter them based on different criterias such thier kind or class or event based on creteria. 
+Labels are properties attached to each item. So you add properties to each item for thier class or thier kind or any other createria.Selectors help to filter these items based on their lables. 
+
+So how to use labels and selectors in k8s ?
+As we can have many things in a k8s cluster, sometimes we may need a way to classify them based on some createrias such as function, application etc ... Remember, to add labels on an object in k8s, u add those in metadata section. note that u can add many labels as you like. 
+
+to get objects based on selector, specify the --selector option in get command.
+ex : > kubeclt get pods --selector function=function_1
+
+Know that kubernetes objects use labels and selectors internally to connect different objects together. 
+For exemple, ReplicatSet to Pod, service to replicaSet ...
+
+I.2 Annotations :
+
+where labels and selectors are used to group and select objects, annotations are used to record other details for informatory purpose. For exemple, tool details like name, version, build information, contact details, phone numbers emails etc ... 
+
+LAB 1 Labels, Selectors and Annotations, to access the lab go to : https://uklabs.kodekloud.com/topic/labels-and-selectors-2/
+
+1) We have deployed a number of PODs. They are labelled with tier, env and bu. How many PODs exist in the dev environment?
+   > kubectl get po --selector env=dev or kubectl get po -l env=dev
+2) How many PODs are in the finance business unit (bu)? 
+   > kubectl get po -l bu=finance 
+3) How many objects are in the prod environment including PODs. 
+   > kubectl get all -l env=prod
+4) Identify the POD which is part of the prod environment, the finance BU and of frontend tier? 
+   > kubectl get po -l env=prod,bu=finance,tier=frontend
+5) A ReplicaSet definition file is given replicaset-definition-1.yaml. Try to create the replicaset. There is an issue with the file. Try to fix it. 
+   > kubectl create -f replicatset-definition-1_fixed.yaml 
+
+____________ END LAB 1 __________________
+
+
+II. ROLLING UPDATES AND ROLLBACKS IN DEPLOYMENT
+    -------------------------------------------
+
+Before we look at how we upgrade our application, let's try to understand rollouts and versioning in Deployments. 
+when u first create a deployment it triggers a rollout, a new rollout creates a new deployment revision. in the future, when the application is upgraded, meaning when the container version is updated to a new one, a new rollout is triggerd and a new deployment version is created. This helps us keep track of the changes made to out deployment and enables us to roll back to a previous version when is need. 
+You can see the status of your rollouts by running the command 
+ > kubectl rollout status deployment/deployment_name 
+To see the revisions and history of rollout run 
+ > kubectl rollout history deployment /deployment_name 
+
+Thare are 2 types of deployment strategies : 
+ - Destroy all the instances of the application and run the new ones at once
+   /this will have a down time while the application is being destroyed and new one being created 
+   This strategie is called RECREATE notice that it is note de default deployment strategie 
+ - Destroy a small amount of the applicaton and replace them with the new version ones ather others 
+   /using this strategie, there will be no downtime, but all the users will not get the same version of the application. 
+   This is called ROLLING UPDATE strategie and it is the default one. 
+
+Upgrades : 
+----------
+
+Let's loot at how a deployment perfoms an upgrade under the hood. remember that when a new eployment is created it first creates a replicaSet automatically. so when u upgrade the deployment, k8s creates a new replecaSet to deploy the now pod there while destroying te old pods. 
+
+Rollback : 
+----------
+
+Let's say you realise that something went wrong after updating to the new version. so you would like to rollback the update. 
+Deployments allow us to rollback to a previous verion to undo a change. for that run the command. 
+ > kubectl rollout undo deployment/deployment_name 
+/the deployment will then destroy the pods in the new replicaSet and then bring back the older deployment. 
+
+Summarize commands : 
+
+Create deployment => kubectl create -f deployment-definition.yaml 
+Get deployment => kubectl get deployments 
+update deployment => kubectl apply -f deployment-definition.yaml 
+                     kubectl set image deployment/deployment-name container_name=NewImage
+status => kubeclt rollout status deployment/deployment-name 
+          kubeclt rollout history deployment/deployment-name 
+rollback => kubectl rollout undo deployment/deployment-name 
+
+
+LAB 2 : Rolling updates & rollbacks, to access the lab go to : https://uklabs.kodekloud.com/topic/rolling-updates-rollbacks-2/
+
+1) Run the script named curl-test.sh to send multiple requests to test the web application. Take a note of the output
+  /the app outputs : Hello, Application Version: v1 ; Color: blue OK
+2) Inspect the deployment and identify the number of PODs deployed by it
+  > kubectl get deployments 
+3) What container image is used to deploy the applications? 
+  > kubectl describe deploy frontend 
+4) Inspect the deployment and identify the current strategy 
+  > kubectl describe deply frontend 
+5) If you were to upgrade the application now what would happen? 
+  /Pods are upgrated few at a time 
+6) Let us try that. Upgrade the application by setting the image on the deployment to kodekloud/webapp-color:v2 
+   > kubectl set image deployment frontend simple-webapp=kodekloud/webapp-color:v2 --record
+7) Up to how many PODs can be down for upgrade at a time. Consider the current strategy settings and number of PODs - 4
+  > kubectl describe deployment frontend /check the deployment's RollingUpdatestrategy
+8) Change the deployment strategy to Recreate. Delete and re-create the deployment if necessary. Only update the strategy type for the existing deployment.
+  > kubectl edit deploy frontend /and edit the strategy
+
+9) Upgrade the application by setting the image on the deployment to kodekloud/webapp-color:v3 
+   Do not delete and re-create the deployment. Only set the new image name for the existing deployment.
+   > kubectl set image deployment frontend simple-webapp=kodekloud/webapp-color:v3 --record
+
+________END LAB 2_______________
