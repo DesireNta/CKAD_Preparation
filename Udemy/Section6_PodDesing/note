@@ -100,3 +100,69 @@ LAB 2 : Rolling updates & rollbacks, to access the lab go to : https://uklabs.ko
    > kubectl set image deployment frontend simple-webapp=kodekloud/webapp-color:v3 --record
 
 ________END LAB 2_______________
+
+III JOBS 
+ 
+There are differents types of jobs a container can serve. Some workload such as webapplication, databases have to continue to run untill they are taken down for one reason or another. 
+There are other kinds of workloads such as batch processing analytics or reporting that are meant to run a specific task and the finish. 
+Let's first see how this last kind of workload works in docker and the we will relate the same concept to k8s
+
+Let run this in docker : 
+> docker run ubuntu expr 3 + 2 
+The container comes up, performs the requested operation, prints the output and exits. 
+
+If u do the same thing in kubernetes, the container will perfom the task, goes into completed state and will be killed. but kubernetes will bring back a new pod to perform the same task in a look until the threshold is reached. 
+This happens because kubernetes tries to keep pods alive. so by default, it will try to bring back the pod to meet that requirement. 
+This behavior is defined by the property restart policy set on pod wich is by default set to always. 
+U can set this property to newer or onFailure, that way k8s will not try to restart the pod when the task is completed. 
+
+There are though another use case for batch processing. Let's say that we have a large data sets that require multiple PODs to process the data in parallel. we want to make sure that all the pods perform the task asigned to thme successfully and then exit. 
+So for that, we need a manager that can create as many pods as we want to get work done and ensure that work gets done successfuly.
+that where jobs comes in. 
+We can create a job using a definition file : 
+
+apiVersion : batch/v1
+kind : Job
+metadata : 
+   name : <give_it_a_name>
+spec :
+   completions : 3  /this is the number of times the pod has to run saccessfuly 
+   parallelism : 3  /number of pod that can run in the same time  
+   templete : 
+      spec : 
+        containers : 
+         - name : <give_it_a_name>
+           image : image
+           command : 
+
+IV CRONJOBS 
+   --------
+
+A cronjob a job that can be scheduled just like cron tab in linux. to create a cronjob we can use a definition file; 
+
+apiVersion : batch/v1beta1 (as of the day of recording, this can change)
+kind : CronJob
+metadata : 
+  name : <give-it-a-name>
+spec : 
+  schedule : "*/1 * * * *" /takes a cron in string format 
+  jobTemplate : 
+    move the whole spec section of the job you want to run  
+ 
+LAB 3 Jobs and CronJobs, to access the lab go to https://uklabs.kodekloud.com/topic/jobs-and-cronjobs/
+
+1) A pod definition file named throw-dice-pod.yaml is given. The image throw-dice randomly returns a value between 1 and 6. 6 is considered success and all others are failure. Try deploying the POD and view the POD logs for the generated number.
+ > kubectl create -f throw-dicee-pod.yaml 
+2) Create a Job using this POD definition file or from the imperative command and look at how many attempts does it take to get a '6' > kubectl create -f throw-dice-job.yaml 
+3) How many attempts did it take to complete the job ?
+ > kubectl describe job throw-dice-job
+4) Update the job definition to run as many times as required to get 3 successful 6's
+  /delete first the existing job and run 
+ > kubectl apply -f throw-dice-job_edited.yaml  
+5) That took a while. Let us try to speed it up, by running upto 3 jobs in parallel. 
+  /delete the existing job and run 
+ > kubectl create -f throw-dice-job_updated.yaml
+6) Let us now schedule that job to run at 21:30 hours every day. Create a CronJob for this : schedule : 30 21 * * *
+ > kubectl create -f throw-dice-cronjob.yaml 
+
+_________END LAB 3____________     
