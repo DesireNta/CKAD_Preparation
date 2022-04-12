@@ -166,3 +166,5 @@ LAB 3 Jobs and CronJobs, to access the lab go to https://uklabs.kodekloud.com/to
  > kubectl create -f throw-dice-cronjob.yaml 
 
 _________END LAB 3____________     
+
+__________END SECTION 6_________
