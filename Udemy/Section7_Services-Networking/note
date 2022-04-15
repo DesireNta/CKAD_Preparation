@@ -1,0 +1,59 @@
+I SERVICES 
+  --------
+
+Kubernetes services enable communication between various components within and outside of the application. 
+they help us to connect application together. 
+An application has different groups of pods.
+So services enable loose coupling between micro services in applications. 
+Let see about networking. 
+Let's say there is a container serving a web applition, it is deployed in a node that has an IP adresse ip of 192.168.1.2
+The computer in the same network has 192.168.1.10 needs to access the container that is in another network 10.244.0.2 (docker network) 
+From the node it self (192.168.1.2) you can ping the container, but from the computer u can not. 
+For that to happen, we will need to use a service. One of service use cas is to listen to a port on the node and forward request on that port to a pod. This type of service is known as a node port service becouse the service listns to a port on the node. 
+
+Types of services : 
+
+NodePort : Makes an internal pod accessible on a port on the node.
+ClusterIP : This creates a virtual IP inside the cluster to enable to enable communication between differnet services such as a set of frontend servers to a set of back-end servers . 
+LoadBalancer service : It provisions load balancer for the application in supported cloud provider. 
+
+Definition file to create a service : 
+
+ apiVerison : v1
+ kind : Service
+ metadata : 
+     name :
+     labels :  
+ spec : 
+     type : NodePort 
+     ports : 
+        - targePort : (port on wich the pod (container) is serving the app
+          port : service port 
+          nodePort : (the node pod between 30000 to 32767)
+     selector : 
+         (add the pod labels)
+
+LAB 1 SERVICES to access the lab go to : https://uklabs.kodekloud.com/topic/kubernetes-services/
+    -----------------------------------
+
+1) how many Services exist on the system ? 
+   > kubectl get service   /there is one service wich is created by kubernetes at launch. 
+2) What is the targetPort configured on the kubernetes service ? 
+   > kubectl describe service kubernetes 
+3) how many services are configured on the kubernetes service ? 
+   > kubectl describe service kubernetes 
+4) how many endpoints are attached on the kubernetes service ?
+   > kubectl describe service kubernetes 
+5) How many Deployments exist on the system now? 
+   > kubeclt get deploy 
+6) What is the image used to create the pods in the deployment ? 
+   > kubectl describe deploy simple-webapp-deployment
+7) Create a new service to access the web application using the service-definition-1.yaml file 
+    Name: webapp-service
+    Type: NodePort
+    targetPort: 8080
+    port: 8080
+    nodePort: 30080
+    selector: simple-webapp
+   > kubectl create -f service-definition-1.yaml
+
