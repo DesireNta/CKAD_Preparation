@@ -151,4 +151,42 @@ https://kubernetes.io/docs/concepts/services-networking/ingress
 https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
 
 
+LAB 2 Ingress networking 1 to access the lab got to : https://uklabs.kodekloud.com/topic/ingress-networking-1/
 
+1) We have deployed Ingress Controller, resources and applications. Note: They are in different namespaces. 
+2) Which namespace is the Ingress Controller deployed in? 
+   > kubectl get all --all-namespaces | grep "ingress"
+3) What is the name of the Ingress Controller Deployment? 
+   > kuectl get deploy --all-namespaces | grep "ingress"  /then name is ingresss-nginx-controller
+4) Which namespace are the applications deployed in? 
+   > kubectl get deploy --all-namespaces | grep "app"
+5) How many applications are deployed in the app-space namespace? Count the number of deployments in this namespace
+   > kubectl get all -n app-space /and see the number of deployments
+6) Which namespace is the Ingress Resource deployed in? 
+   > kubectl get ingress --all-namespaces
+7) What is the name of the Ingress Resource . 
+   > kubectl get ingress -n app-space -o name 
+8) What is the Host configured on the Ingress Resource? 
+   > kubectl describe ingress ingress-wear-watch -n app-space 
+9) what backend is the /wear path on the ingress configured with ? 
+   > kubeclt describe ingress ingress-wear-watch -n app-space 
+10) At what path is the video streaming application made available on the Ingress?
+   > kubectl describe ingress ingress-wear-watch -n app-space 
+11) If the requirement does not match any of the configured paths what service are the requests forwarded to? 
+   > kubectl describe ingress ingress-wear-watch -n app-space
+12) You are requested to change the URLs at which the applications are made available.Make the video application available at /stream   > kubectl edit ingress ingress-wear-watch -n app-space /get the file the definition and edit it  
+13) Due to increased demand, your business decides to take on a new venture. You acquired a food delivery company. Their applications have been migrated over to your cluster.Inspect the new deployments in the app-space namespace
+   > kubectl get deploy -n app-space 
+14) You are requested to add a new path to your ingress to make the food delivery application available to your customers.
+    Make the new application available at /eat.
+   > kubectl edit ingress ingress-wear-watch -n app-space /add a new backend (check the add_food.yaml)  
+15) A new payment service has been introduced. Since it is critical, the new application is deployed in its own namespace.
+    Identify the namespace in which the new application is deployed.
+   > kubectl get deploy --all-namespaces 
+16) You are requested to make the new application available at /pay.
+Identify and implement the best approach to making this application available on the ingress controller and test to make sure its working. Look into annotations: rewrite-target as well.
+  > kubectl create -f add_pay.yaml 
+
+-----END LAB 2 -------------------------- 
+
+ 
