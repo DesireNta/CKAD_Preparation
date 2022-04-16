@@ -57,3 +57,98 @@ LAB 1 SERVICES to access the lab go to : https://uklabs.kodekloud.com/topic/kube
     selector: simple-webapp
    > kubectl create -f service-definition-1.yaml
 
+__________END LAB 1_____________________
+
+
+II INGRESS NETWORKING 
+   ------------------
+
+It can confuse more than one to say the diffent between ingress and service and when to use what. 
+To review the corse, go to : https://www.udemy.com/course/certified-kubernetes-application-developer/learn/lecture/13302764#overview
+it has a lot of explaination that helps to enderstand. 
+
+Ingress helps the users to access the application using a single, externally url that you can configure to route to different services within the cluster based on the url path. At the same time, implement SSL security as well.
+So you can think ingress as a layer 7 load balancer builtin to the kubernetes cluster that can be configured using kubernetes primitives just like any other object in k8s. Rememeber, this is a kubernetes object, so you need to expose it to make it accessible outside the cluster. 
+To create a ingress, u will need to deploy an INGRESS CONTROLLER (nginx, haproxy or traefix ...) and an INGRESS RESOURCES. 
+One thing to know. A kubernets cluster does not come with an ingress controller by default. 
+
+   Ingress controller : 
+
+This must be deployed, there a number of solutions available for ingress controller. there are different solutions out there like GCE http(s) for google cloud platform, Istio, Contour, HAproxy, nginx and so on.
+
+GCE and nginx are being supported and maintenained by kubernetes project. An ingress controller is deployed like any other deployement in kubernetes. 
+
+apiVersion : apps/v1
+kind : Deployment 
+metadata : 
+   name : nginx-ingress-controller
+spec : 
+  replicas : 1
+  selector : 
+    matchLabels : 
+       name : nginx-ingress
+    template : 
+       metadata : 
+          labels : 
+             name : nginx-ingress 
+       spec : 
+         containers : 
+            - name : nginx-ingress-controller
+              image : quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.21.0
+         args : 
+           - /nginx-ingress-controller
+           - --configmap=$(POD_NAMESPACE)/nginx-configuration
+         env : 
+          - name : POD_NAME 
+            valueFrom 
+              fieldRef : 
+                fielPath : metadata.name 
+          _ name : POD_NAMESPACE 
+            valueFrom 
+              fieldRef: 
+                fielPath : metadata.namespace
+          ports : 
+           - name : http 
+             containerPort : 80 
+           - name : https 
+             containerPort : 443
+
+After creation we need a service of type of NodePort to epose it outside of the cluster.  
+As mentioned before, the ingress controlles have additional intelligence built into them to monitor the kubernetes cluster for ingress resources and configure the underling nginx server when something has changed. So for the ingress controller to do that, it requires a service account with the right set of permissions. So for that we will hava to create a service account. 
+
+  Ingress resource : 
+
+An ingress resource is a set of rules and configurations applied on the ingress controller.
+ingress resource is created using a definition file : 
+
+apiVersion : networking.k8s.io/v1
+kind : Ingress
+metadada : 
+  name : give_it_a_name 
+spec : 
+  rules: 
+  - http : 
+      paths : 
+        - path: /toto
+          backend : 
+             serviceName: service_name_1
+             servicePort : 80
+        - path: /titi
+          backend : 
+            serviceName : service_name_2
+            servicePort : 80 
+
+In k8s version 1.20+ we can create an Ingress resource from the imperative way like this:
+- kubectl create ingress <ingress_name> --rule = "host/path=service:port"
+Find more information and examples in the below reference link:-
+
+https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-ingress-em-
+
+References:-
+
+https://kubernetes.io/docs/concepts/services-networking/ingress
+
+https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
+
+
+
