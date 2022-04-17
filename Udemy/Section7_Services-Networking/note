@@ -187,6 +187,87 @@ LAB 2 Ingress networking 1 to access the lab got to : https://uklabs.kodekloud.c
 Identify and implement the best approach to making this application available on the ingress controller and test to make sure its working. Look into annotations: rewrite-target as well.
   > kubectl create -f add_pay.yaml 
 
------END LAB 2 -------------------------- 
+-----END LAB 2 -------------------------
 
- 
+FAQ - What is the rewrite-target option?
+Different ingress controllers have different options that can be used to customise the way it works. NGINX Ingress controller has many options that can be seen here: https://kubernetes.github.io/ingress-nginx/examples/ . I would like to explain one such option that we will use in our labs. The Rewrite target option https://kubernetes.github.io/ingress-nginx/examples/rewrite/
+
+Our watch app displays the video streaming webpage at http://<watch-service>:<port>/
+
+Our wear app displays the apparel webpage at http://<wear-service>:<port>/
+
+
+We must configure Ingress to achieve the below. When user visits the URL on the left, his request should be forwarded internally to the URL on the right. Note that the /watch and /wear URL path are what we configure on the ingress controller so we can forwarded users to the appropriate application in the backend. The applications don't have this URL/Path configured on them:
+
+
+http://<ingress-service>:<ingress-port>/watch   -->  http://<watch-service>:<port>/
+http://<ingress-service>:<ingress-port>/wear    -->  http://<wear-service>:<port>/
+
+Without the rewrite-target option, this is what would happen:
+
+http://<ingress-service>:<ingress-port>/watch  --> http://<watch-service>:<port>/watch
+http://<ingress-service>:<ingress-port>/wear   --> http://<wear-service>:<port>/wear
+
+Notice watch and wear at the end of the target URLs. The target applications are not configured with /watch or /wear paths. They are different applications built specifically for their purpose, so they don't expect /watch or /wear in the URLs. And as such the requests would fail and throw a 404 not found error. 
+
+To fix that we want to "ReWrite" the URL when the request is passed on to the watch or wear applications. We don't want to pass in the same path that user typed in. So we specify the rewrite-target option. This rewrites the URL by replacing whatever is under rules->http->paths->path which happens to be /pay in this case with the value in rewrite-target. This works just like a search and replace function.
+
+For example: replace(path, rewrite-target)
+In our case: replace("/path","/")
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-ingress
+  namespace: critical-space
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /pay
+        backend:
+          serviceName: pay-service
+          servicePort: 8282
+
+In another example given here : https://kubernetes.github.io/ingress-nginx/examples/rewrite/, this could also be:
+replace("/something(/|$)(.*)", "/$2")
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: rewrite
+  namespace: default
+spec:
+  rules:
+  - host: rewrite.bar.com
+    http:
+      paths:
+      - backend:
+          serviceName: http-svc
+          servicePort: 80
+        path: /something(/|$)(.*)
+
+
+_____ LAB 3 Ingress Networking 2 to access the lab go to : https://uklabs.kodekloud.com/topic/ingress-networking-2/ ____________
+
+1) We have deployed two applications. Explore the setup
+  > kubectl get deployments --all-namespaces
+2) Let us now deploy an Ingress Controller. First, create a namespace called ingress-space.
+  > kubeclt create namespace ingress-space
+3) The NGINX Ingress Controller requires a ConfigMap object. Create a ConfigMap object in the ingress-space. 
+  > create configmap nginx-configuration -n ingress-space
+4) The NGINX Ingress Controller requires a ServiceAccount. Create a ServiceAccount in the ingress-space namespace. 
+  > kubectl create serviceaccount ingress-serviceaccount -n ingress-space
+5) We have created the Roles and RoleBindings for the ServiceAccount. Check it out!!
+ > ok 
+6) Let us now deploy the Ingress Controller. Create a deployment using the file given.
+   The Deployment configuration is given at /root/ingress-controller.yaml. There are several issues with it. Try to fix them
+ > view ingress-controller.yaml 
+ > kubectl create -f ingress-controller_edited.yaml
+
+----END LAB 3-------------
+
