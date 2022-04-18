@@ -38,4 +38,68 @@ spec :
     volumeID : <volume-id>
     fsType : ext4
 
-  
+
+III PERSISTENT VOLUME CLAIMS 
+    ------------------------
+
+To make the storage available to a nodeo, we need to create a persistent volume claim.   
+Persistent volumes and persistent volumes claims have a one to one relationship. 
+Persistent volume claim definition file 
+
+apiVersion : v1
+kind : PersistentVolumeClaim 
+metadata : 
+   name : <give-it-a-name>
+spec : 
+   accessModes : 
+      - ReadWriteOnce
+   resources : 
+    requests : 
+      storage : <amount needed>
+
+Using PVCs in PODs
+
+Once you create a PVC use it in a POD definition file by specifying the PVC Claim name under persistentVolumeClaim section in the volumes section like this:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: myfrontend
+      image: nginx
+      volumeMounts:
+      - mountPath: "/var/www/html"
+        name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: myclaim
+
+The same is true for ReplicaSets or Deployments. Add this to the pod template section of a Deployment on ReplicaSet.
+Reference URL: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#claims-as-volumes
+
+--- Lab 1 Persistent volumes, to access the lab go to : https://uklabs.kodekloud.com/topic/persistent-volumes-5/
+
+1) Configure a volume to store these logs at /var/log/webapp on the host. Use the spec provided below. 
+     Name: webapp
+     Image Name: kodekloud/event-simulator
+     Volume HostPath: /var/log/webapp
+     Volume Mount: /log
+
+   > kubectl create -f pod.yaml
+
+2) Create a Persistent Volume with the given specification. 
+     Volume Name: pv-log
+     Storage: 100Mi
+     Access Modes: ReadWriteMany
+     Host Path: /pv/log
+     Reclaim Policy: Retain
+      
+  > kubectl create -f persistent-volume.yaml
+
+3) Let us claim some of that storage for our application. Create a Persistent Volume Claim with the given specification.
+     Volume Name: claim-log-1
+     Storage Request: 50Mi
+     Access Modes: ReadWriteOnce
