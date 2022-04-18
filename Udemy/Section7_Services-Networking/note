@@ -321,4 +321,6 @@ More information : https://www.udemy.com/course/certified-kubernetes-application
       MySQL Port: 3306
   > kubectl create -f internal.yaml 
 
-------- END lab 4 ------------------------- 
+------- END lab 4 -------------------------
+
+____________ END SECTION 7 ______________ 
