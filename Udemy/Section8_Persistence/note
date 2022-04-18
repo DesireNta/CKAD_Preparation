@@ -103,3 +103,11 @@ Reference URL: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#c
      Volume Name: claim-log-1
      Storage Request: 50Mi
      Access Modes: ReadWriteOnce
+
+  > kubectl craete -f volume-claim.yaml 
+
+4) Update the webapp pod to use the persistent volume claim as its storage. Replace hostPath configured earlier with the newly created PersistentVolumeClaim.
+   
+  > kubectl delete po webapp && kubectl create -f pod_updated.yaml 
+
+---- END Lab Persistent Volumes ----------- 
