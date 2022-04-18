@@ -111,3 +111,6 @@ Reference URL: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#c
   > kubectl delete po webapp && kubectl create -f pod_updated.yaml 
 
 ---- END Lab Persistent Volumes ----------- 
+
+
+---- END Section 8 -----------
