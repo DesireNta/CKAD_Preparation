@@ -271,3 +271,54 @@ _____ LAB 3 Ingress Networking 2 to access the lab go to : https://uklabs.kodekl
 
 ----END LAB 3-------------
 
+
+III NETWORK POLICY
+    -------------
+
+By default, in kubernetes all pods deployed in all nodes can communicate to each other. 
+You can implement some rules to prevent some pods to reach other by using network policy.
+A network policy is created like any other object in kubernetes. It will apply to the pods it is lined with. 
+Definition file : 
+
+apiVersion : networking.k8s.io/v1
+kind : NetworkPolicy
+metadata : 
+  name : <give_it_a_name>
+spec : 
+  PodSelector : 
+   matchLabels : 
+      key : value
+  PolicyTypes : 
+   - Ingress 
+  Ingress : 
+   - from : 
+     - podSelector : 
+         matchLabels : 
+            key : value 
+     Ports : 
+     - protocol : TCP 
+       port : 3306 
+
+More information : https://www.udemy.com/course/certified-kubernetes-application-developer/learn/lecture/24491680#overview 
+
+--- LAB 4 Network policy, To access the lab go to https://uklabs.kodekloud.com/topic/network-policies-4/ 
+
+1) How many network policies do you see in the environment? 
+  > kubectl get networkpolicy --all-namespaces
+2) Which pod is the Network Policy applied on? 
+  > kubectl describe networkpolicy payroll-policy
+3) What type of traffic is this Network Policy configured to handle? 
+  > kubectl describe networkpolicy payroll-policy
+4) What is the impact of the rule configured on this Network Policy? 
+  /Allowing ingress traffic To Port: 8080/TCP From: PodSelector: name=internal
+5) Create a network policy to allow traffic from the Internal application only to the payroll-service and db-service. 
+   Use the spec given on the below. You might want to enable ingress traffic to the pod to test your rules in the UI
+      Policy Name: internal-policy
+      Policy Type: Egress
+      Egress Allow: payroll
+      Payroll Port: 8080
+      Egress Allow: mysql
+      MySQL Port: 3306
+  > kubectl create -f internal.yaml 
+
+------- END lab 4 ------------------------- 
