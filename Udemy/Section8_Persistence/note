@@ -1,0 +1,41 @@
+I VOLUMES 
+  -------
+
+Container are ment to do one task and when that task is completed, the container is destroyed and all data inside are destroyed too. 
+So to persist data processed by the containers, we attach a volume to the container when they are created. 
+The data processed by the container is now planced in this volume thereby retaining it permanently. 
+So, even if the container is deleted, the data generated or created will remain. 
+
+Let's look at a simple implementation of volumes in kubernetes. 
+
+We have a single node cluster, we create a pod that generates a rondom number and writes it at /data/number.out. In this case, if the pod is deleted so the number will be. To retain de genereted number, we create a volume. A volume needs a storage, that can be configured different ways. For now let's choose to use a directory on the host. /data for example.  Once the volume is create, we have to mount it in the container. 
+
+II PERSISTENT VOLUMES 
+   ------------------
+In the last part, when we create a volume, it was created in the pod's definition file. 
+Now, when u have a large environment with a lot of users deploying a lot of pods. the users would have to configure storage everytimefor each pod. instead of that, we would like to manage storage more centrally. You would like it to be configured iin a way that an admin cna create a large pool of storage. 
+That is the purpose of persistent volumes.
+
+A persistent volume is a cluster wide pool of storage volumes configurad by an administrator to be used when deploying applications on the cluster. The users can select to use which volume using persitant volume claims. 
+
+Definition file for the persistent volume: 
+
+apiVersion : v1
+kind : PersistentVolume
+metadata : 
+   name : <give_it_a_name>
+spec : 
+  accessModes :  /to define how the volume should be mounted on the hosts. 
+     - ReadWriteOnce / Can be ReadOnlyMany, ReadWriteOnce, ReadWriteMany
+  capacity : 
+     storage : <the amount of the volume>
+  hostPath : 
+     path : /data    
+                  
+  or use one of the solution of the volume storage available. 
+  
+  awsElasticaBlockStore : 
+    volumeID : <volume-id>
+    fsType : ext4
+
+  
