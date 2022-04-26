@@ -1,0 +1,46 @@
+I AUTORIZATION MECANISMS 
+  ----------------------
+
+There are different authorization mechanisms supported by kubernetes, such as; 
+- Node Authorization
+We know that the kube server is accessed by users for management purposes, as well as the kubelet on nodes within te cluster for management purposes in the cluster. 
+The kubelet accesses the API server to read information about services and nodes and podes. 
+Thes request are handled by a special authoriser known as the node authorizer. 
+(Access within the cluster)
+ 
+- Attribute based authorization
+External access to the API is handled by ABAC 
+This is where uou associate a user or a group of users with a set of permissions. 
+Thes set of permissions is lested in definition file wich is edited manually and for each change, the api server has to be restarted.This makes this kind of authorization difficulte to manage. 
+ 
+- Role Based Authorization
+RBAC make the management much easier, instead of directly associating a user or a group with a set of permissions, we difine a rule with a set of permissions. 
+ 
+- Webhook 
+This is used when you want to externally manage authorization not through the builtin mechanisms in the kubernetes. 
+this consiste of using a 3 part solution like Open Policy Agent
+
+RBAC 
+creating an rbac role using definition file 
+
+apiVersion : rbac.authorization.k8s.io/v1
+kind : Role 
+metadata : 
+  name : developper 
+rules : 
+  - apiGroups : [""]
+    resources : ["pods"]
+    verbs : ["list","get","create","update","delete"]
+
+Lab 1 Practice Test Role Based Access Controls, to access the lab go to  https://uklabs.kodekloud.com/topic/practice-test-ro…ccess-controls-4/
+
+1) Inspect the environment and identify the authorization modes configured on the cluster. Check the kube-apiserver settings. 
+  / Use the command kubectl describe pod kube-apiserver-controlplane -n kube-system and look for --authorization-mode.
+2) How many roles exist in all namespaces together? 
+  > kubectl get roles --all-namespaces --no-headers | wc 
+3) What are the resources the kube-proxy role in the kube-system namespace is given access to? 
+  > kubectl describe role kube-proxy -n kube-system
+4) Which account is the kube-proxy role assigned to? 
+  > kubectl describe rolebinding kube-proxy -n kube-system
+5) A user dev-user is created. User's details have been added to the kubeconfig file. Inspect the permissions granted to the user. Check if the user can list pods in the default namespace.Use the --as dev-user option with kubectl to run commands as the dev-user.
+
