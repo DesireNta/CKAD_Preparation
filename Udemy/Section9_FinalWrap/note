@@ -44,3 +44,27 @@ Lab 1 Practice Test Role Based Access Controls, to access the lab go to  https:/
   > kubectl describe rolebinding kube-proxy -n kube-system
 5) A user dev-user is created. User's details have been added to the kubeconfig file. Inspect the permissions granted to the user. Check if the user can list pods in the default namespace.Use the --as dev-user option with kubectl to run commands as the dev-user.
 
+II Cluster role and cluster role bindings.
+   ---------------------------------------
+Remember the normal role and role bindings are limited in the namespaces that they were created.
+Cluster role are ment to managent resources that are note namespaced in kubernetes such as : nodes, Persistent volumes, namespaces. 
+For exemple, u can create a cluster role to grant permission to a user to delete, view or create nodes. 
+Note that a cluster role can be used to manange namespaced resources that means the cluster role will apply for all resources of thatkind in the whole cluster. 
+
+lab 2 Cluster roles, to access the lab, go to https://uklabs.kodekloud.com/topic/practice-test-cluster-roles-4/ 
+
+1) A new user michelle joined the team. She will be focusing on the nodes in the cluster. Create the required ClusterRoles and ClusterRoleBindings so she gets access to the nodes. 
+ > kubectl create -f clusterRole.yaml 
+ > kubectl create -f clusterRoleBinding.yaml
+
+2) michelle's responsibilities are growing and now she will be responsible for storage as well. Create the required ClusterRoles and ClusterRoleBindings to allow her access to Storage.
+Get the API groups and resource names from command kubectl api-resources. Use the given spec:
+   ClusterRole: storage-admin
+   Resource: persistentvolumes
+   Resource: storageclasses
+   ClusterRoleBinding: michelle-storage-admin
+   ClusterRoleBinding Subject: michelle
+   ClusterRoleBinding Role: storage-admin
+  
+ > kubectl create -f storage-admin.yaml 
+ > kubectl crate -f storage-admin-binding.yaml
